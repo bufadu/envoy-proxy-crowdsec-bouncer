@@ -1,0 +1,54 @@
+server:
+  grpcPort: 8080
+  httpPort: 8081
+  logLevel: "info"
+
+trustedProxies:
+  - 10.0.0.0/8
+  - 172.16.0.0/12
+  - 192.168.0.0/16
+
+bouncer:
+  enabled: true
+  apiKey: "<lapi-key>"
+  lapiURL: "http://crowdsec:8080"
+  metrics: false
+  tickerInterval: "10s"
+  metricsInterval: "10m"
+  banStatusCode: 403
+
+waf:
+  enabled: false
+  apiKey: "<lapi-key>"
+  appSecURL: "http://appsec:7422"
+
+captcha:
+  enabled: false
+  provider: "recaptcha"
+  siteKey: "<your-captcha-site-key>"
+  secretKey: "<your-captcha-secret-key>"
+  signingKey: "<your-jwt-signing-key>"
+  callbackURL: "https://yourdomain.com"
+  cookieDomain: ".yourdomain.com"
+  secureCookie: true
+  timeout: "10s"
+  challengeDuration: "5m"
+  sessionDuration: "15m"
+
+webhook:
+  subscriptions:
+    - url: "https://example.com/webhook"
+      events:
+        - request_blocked
+        - captcha_required
+        - captcha_verified
+        - request_allowed
+  signingKey: ""
+  timeout: "5s"
+  bufferSize: 100
+
+templates:
+  deniedTemplatePath: ""
+  deniedTemplateHeaders: "text/html; charset=utf-8"
+  captchaTemplatePath: ""
+  captchaTemplateHeaders: "text/html; charset=utf-8"

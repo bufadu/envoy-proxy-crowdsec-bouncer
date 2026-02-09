@@ -60,3 +60,29 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Remove empty string values from config to allow defaults and env vars to take precedence
+*/}}
+{{- define "envoy-proxy-bouncer.cleanConfig" -}}
+{{- $config := . -}}
+{{- $result := dict -}}
+{{- range $key, $value := $config -}}
+  {{- if kindIs "map" $value -}}
+    {{- $cleaned := include "envoy-proxy-bouncer.cleanConfig" $value | fromYaml -}}
+    {{- if $cleaned -}}
+      {{- $_ := set $result $key $cleaned -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if kindIs "slice" $value -}}
+    {{- $_ := set $result $key $value -}}
+  {{- end -}}
+  {{- if or (kindIs "bool" $value) (kindIs "float64" $value) (kindIs "int" $value) (kindIs "int64" $value) -}}
+    {{- $_ := set $result $key $value -}}
+  {{- end -}}
+  {{- if and (kindIs "string" $value) (ne $value "") -}}
+    {{- $_ := set $result $key $value -}}
+  {{- end -}}
+{{- end -}}
+{{- $result | toYaml -}}
+{{- end -}}

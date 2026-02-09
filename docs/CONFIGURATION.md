@@ -32,5 +32,5 @@ For detailed configuration of specific components, see the dedicated documentati
 
 ## See Also
 
-- [config.yaml](../config.yaml) - Complete configuration example
+- [config.yaml](./example.yaml) - Complete configuration example
 - [Deployment Guide](DEPLOYMENT.md) - Deployment instructions

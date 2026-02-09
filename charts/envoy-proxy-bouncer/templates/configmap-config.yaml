@@ -6,4 +6,4 @@ metadata:
     {{- include "envoy-proxy-bouncer.labels" . | nindent 4 }}
 data:
   config.yaml: |
-    {{- .Values.config | toYaml | nindent 4 }}
+    {{- include "envoy-proxy-bouncer.cleanConfig" .Values.config | nindent 4 }}
