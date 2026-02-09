@@ -70,11 +70,11 @@ release:
     ## v0.5.1
 
     ### Webhook Support
-    Added webhook notifications for security events. Send HTTP POST requests to external endpoints when events occur such as:
-    - `request_allowed` - Request passed all security checks
-    - `request_blocked` - Request blocked by CrowdSec or WAF
-    - `captcha_required` - CAPTCHA challenge issued to client
-    - `captcha_verified` - User successfully completed CAPTCHA
+    Added webhook notifications for events. Send HTTP POST requests to external endpoints when events occur such as:
+    - `request_allowed` - Request allowed
+    - `request_blocked` - Request blocked
+    - `captcha_required` - CAPTCHA challenge issued
+    - `captcha_verified` - CAPTCHA challenge successfully completed 
 
     See the [Webhook Documentation](https://github.com/kdwils/envoy-proxy-crowdsec-bouncer/blob/main/docs/WEBHOOKS.md) for configuration examples.
 
