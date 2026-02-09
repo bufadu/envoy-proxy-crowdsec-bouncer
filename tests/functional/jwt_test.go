@@ -23,6 +23,7 @@ import (
 	"github.com/kdwils/envoy-proxy-bouncer/logger"
 	"github.com/kdwils/envoy-proxy-bouncer/server"
 	"github.com/kdwils/envoy-proxy-bouncer/template"
+	"github.com/kdwils/envoy-proxy-bouncer/webhook"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -269,16 +270,21 @@ func testJWTCompleteVerificationFlowVersion(t *testing.T, image string) {
 		templateStore, err := template.NewStore(template.Config{})
 		require.NoError(t, err)
 
-		srv := server.NewServer(cfg, testBouncer, captchaService, templateStore, slogger)
+		srv := server.NewServer(cfg, testBouncer, captchaService, webhook.NewNoopNotifier(), templateStore, slogger)
 
 		testCtx, cancel := context.WithCancel(ctx)
-		defer cancel()
+		serverDone := make(chan struct{})
+		defer func() {
+			cancel()
+			<-serverDone
+		}()
 
 		go func() {
 			err := srv.ServeDual(testCtx)
 			if err != nil && err != context.Canceled {
 				t.Logf("server error: %v", err)
 			}
+			close(serverDone)
 		}()
 
 		time.Sleep(2 * time.Second)
@@ -398,16 +404,21 @@ func testJWTCompleteVerificationFlowVersion(t *testing.T, image string) {
 		templateStore, err := template.NewStore(template.Config{})
 		require.NoError(t, err)
 
-		srv := server.NewServer(cfg, testBouncer, captchaService, templateStore, slogger)
+		srv := server.NewServer(cfg, testBouncer, captchaService, webhook.NewNoopNotifier(), templateStore, slogger)
 
 		testCtx, cancel := context.WithCancel(ctx)
-		defer cancel()
+		serverDone := make(chan struct{})
+		defer func() {
+			cancel()
+			<-serverDone
+		}()
 
 		go func() {
 			err := srv.ServeDual(testCtx)
 			if err != nil && err != context.Canceled {
 				t.Logf("server error: %v", err)
 			}
+			close(serverDone)
 		}()
 
 		time.Sleep(2 * time.Second)
@@ -536,16 +547,21 @@ func testJWTCompleteVerificationFlowVersion(t *testing.T, image string) {
 		templateStore, err := template.NewStore(template.Config{})
 		require.NoError(t, err)
 
-		srv := server.NewServer(cfgShortExpiry, testBouncer, captchaServiceShort, templateStore, slogger)
+		srv := server.NewServer(cfgShortExpiry, testBouncer, captchaServiceShort, webhook.NewNoopNotifier(), templateStore, slogger)
 
 		testCtx, cancel := context.WithCancel(ctx)
-		defer cancel()
+		serverDone := make(chan struct{})
+		defer func() {
+			cancel()
+			<-serverDone
+		}()
 
 		go func() {
 			err := srv.ServeDual(testCtx)
 			if err != nil && err != context.Canceled {
 				t.Logf("server error: %v", err)
 			}
+			close(serverDone)
 		}()
 
 		time.Sleep(2 * time.Second)
@@ -663,16 +679,21 @@ func testJWTCompleteVerificationFlowVersion(t *testing.T, image string) {
 		templateStore, err := template.NewStore(template.Config{})
 		require.NoError(t, err)
 
-		srv := server.NewServer(cfgShortChallenge, testBouncer, captchaServiceShort, templateStore, slogger)
+		srv := server.NewServer(cfgShortChallenge, testBouncer, captchaServiceShort, webhook.NewNoopNotifier(), templateStore, slogger)
 
 		testCtx, cancel := context.WithCancel(ctx)
-		defer cancel()
+		serverDone := make(chan struct{})
+		defer func() {
+			cancel()
+			<-serverDone
+		}()
 
 		go func() {
 			err := srv.ServeDual(testCtx)
 			if err != nil && err != context.Canceled {
 				t.Logf("server error: %v", err)
 			}
+			close(serverDone)
 		}()
 
 		time.Sleep(2 * time.Second)
@@ -706,16 +727,21 @@ func testJWTCompleteVerificationFlowVersion(t *testing.T, image string) {
 		templateStore, err := template.NewStore(template.Config{})
 		require.NoError(t, err)
 
-		srv := server.NewServer(cfg, testBouncer, captchaService, templateStore, slogger)
+		srv := server.NewServer(cfg, testBouncer, captchaService, webhook.NewNoopNotifier(), templateStore, slogger)
 
 		testCtx, cancel := context.WithCancel(ctx)
-		defer cancel()
+		serverDone := make(chan struct{})
+		defer func() {
+			cancel()
+			<-serverDone
+		}()
 
 		go func() {
 			err := srv.ServeDual(testCtx)
 			if err != nil && err != context.Canceled {
 				t.Logf("server error: %v", err)
 			}
+			close(serverDone)
 		}()
 
 		time.Sleep(2 * time.Second)

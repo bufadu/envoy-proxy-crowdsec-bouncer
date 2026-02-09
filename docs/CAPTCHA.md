@@ -36,7 +36,7 @@ Both tokens are signed using the `signingKey`. Tokens are bound to IP addresses 
 ## Supported Providers
 
 | Provider | Configuration Value | Documentation |
-|----------|-------------------|----------------|---------------|
+|----------|-------------------|---------------|
 | Google reCAPTCHA v2 | `recaptcha` | [reCAPTCHA Documentation](https://developers.google.com/recaptcha) |
 | Cloudflare Turnstile | `turnstile` | [Turnstile Documentation](https://developers.cloudflare.com/turnstile/) |
 
@@ -67,10 +67,11 @@ captcha:
 | `provider` | string | `""` | Yes | CAPTCHA provider: `recaptcha` or `turnstile` |
 | `siteKey` | string | `""` | Yes | Public site key from CAPTCHA provider |
 | `secretKey` | string | `""` | Yes | Secret key from CAPTCHA provider |
-| `signingKey` | string | `""` | Yes | JWT signing key (minimum 32 bytes). Generate with `openssl rand -base64 32` |
+| `signingKey` | string | `""` | Yes | JWT signing key (minimum 32 bytes). See [Signing Key Generation](SIGNING_KEYS.md) |
 | `callbackURL` | string | `""` | Yes | Base URL for CAPTCHA callbacks (public-facing hostname) |
 | `cookieDomain` | string | `""` | Yes | Parent domain for cookies (e.g., `.example.com`) to share across subdomains |
 | `secureCookie` | bool | `true` | No | Use Secure flag and SameSite=None (true for HTTPS, false for local dev) |
+| `cookieName` | string | `"session"` | No | Name of the session cookie used for CAPTCHA verification |
 | `timeout` | duration | `"10s"` | No | Timeout for CAPTCHA provider verification requests |
 | `sessionDuration` | duration | `"15m"` | No | How long CAPTCHA verification remains valid |
 | `challengeDuration` | duration | `"5m"` | No | How long a challenge token remains valid |
@@ -86,6 +87,7 @@ export ENVOY_BOUNCER_CAPTCHA_SIGNINGKEY=your-jwt-signing-key
 export ENVOY_BOUNCER_CAPTCHA_CALLBACKURL=https://yourdomain.com
 export ENVOY_BOUNCER_CAPTCHA_COOKIEDOMAIN=.yourdomain.com
 export ENVOY_BOUNCER_CAPTCHA_SECURECOOKIE=true
+export ENVOY_BOUNCER_CAPTCHA_COOKIENAME=session
 export ENVOY_BOUNCER_CAPTCHA_SESSIONDURATION=15m
 export ENVOY_BOUNCER_CAPTCHA_CHALLENGEDURATION=5m
 export ENVOY_BOUNCER_CAPTCHA_TIMEOUT=10s
@@ -174,7 +176,7 @@ You can customize the CAPTCHA challenge page. See [CUSTOM_TEMPLATES.md](CUSTOM_T
 Your custom CAPTCHA template **must** include:
 
 1. Form posting to `{{.CallbackURL}}/verify`
-2. Hidden session field: `<input type="hidden" name="session" value="{{.SessionID}}" />`
+2. Hidden session field: `<input type="hidden" name="session" value="{{.ChallengeToken}}" />`
 3. CAPTCHA widget rendering with `{{.SiteKey}}`
 4. Provider-specific JavaScript library
 
@@ -183,7 +185,7 @@ Example:
 ```html
 <form method="POST" action="{{.CallbackURL}}/verify">
     <div id="captcha-container"></div>
-    <input type="hidden" name="session" value="{{.SessionID}}" />
+    <input type="hidden" name="session" value="{{.ChallengeToken}}" />
     <button type="submit">Verify</button>
 </form>
 
@@ -208,7 +210,7 @@ Example:
 
 ### Session Security
 
-The `signingKey` must be at least 32 bytes. Generate one with `openssl rand -base64 32`.
+The `signingKey` must be at least 32 bytes. See [Signing Key Generation](SIGNING_KEYS.md) for generation instructions.
 
 Verification tokens are stored in HTTP-only cookies. When `secureCookie` is true, cookies use the Secure flag and SameSite=None (required for cross-site access over HTTPS). When false, SameSite=Lax is used (for local development).
 
@@ -236,10 +238,16 @@ trustedProxies:
 5. Complete the CAPTCHA
 6. Verify redirect back to original resource
 
+## Helm Deployment
+
+For Helm-specific configuration and deployment instructions, see the [Helm Chart README](../charts/envoy-proxy-bouncer/README.md).
+
 ## See Also
 
-- [Configuration Guide](CONFIGURATION.md)
-- [Deployment Guide](DEPLOYMENT.md)
-- [Custom Templates](CUSTOM_TEMPLATES.md)
-- [reCAPTCHA Documentation](https://developers.google.com/recaptcha)
-- [Cloudflare Turnstile Documentation](https://developers.cloudflare.com/turnstile/)
+- [Configuration Guide](CONFIGURATION.md) - General configuration overview
+- [CrowdSec Configuration](CROWDSEC.md) - CrowdSec bouncer and WAF setup
+- [Webhook Configuration](WEBHOOKS.md) - Webhook event notifications
+- [Deployment Guide](DEPLOYMENT.md) - Deployment instructions
+- [Custom Templates](CUSTOM_TEMPLATES.md) - Customize CAPTCHA page templates
+- [reCAPTCHA Documentation](https://developers.google.com/recaptcha) - Google reCAPTCHA setup
+- [Cloudflare Turnstile Documentation](https://developers.cloudflare.com/turnstile/) - Turnstile setup
