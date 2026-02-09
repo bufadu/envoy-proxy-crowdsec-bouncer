@@ -4,7 +4,7 @@
 
 # CrowdSec Envoy Proxy Bouncer
 
-A lightweight [CrowdSec](https://www.crowdsec.net/) bouncer for [Envoy Proxy](https://www.envoyproxy.io/) using the ext_authz filter.
+[CrowdSec](https://www.crowdsec.net/) bouncer for [Envoy Proxy](https://www.envoyproxy.io/) using the ext_authz filter.
 
 > [!WARNING]
 > This project is in active development and has not been tested in production environments. Use at your own risk. Breaking changes may occur between releases. For the most stable experience, use a [tagged release](https://github.com/kdwils/envoy-proxy-crowdsec-bouncer/releases) rather than the `main` branch.
@@ -32,52 +32,31 @@ The following CrowdSec versions have been tested. Other versions may work but ha
 
 ## How It Works
 
-The bouncer integrates with Envoy Proxy as an external authorization service, sitting between Envoy and your backend applications. It evaluates every request through a multi-stage security pipeline:
+Integrates with Envoy as an external authorization service. Each request is evaluated by:
 
-### Request Processing Flow
-
-1. **IP Extraction**
-    - Extracts the real client IP from forwarded headers, respecting trusted proxy configuration
-2. **Bouncer Check**
-    - Queries the local decision cache for IP-based actions (ban or captcha)
-    - Decisions are streamed in real-time from CrowdSec via the Stream API
-    - Low-latency lookups using in-memory cache
-3. **WAF Analysis**
-    - If enabled and no blocking decision exists then the request is forwarded to Crowdsec AppSec for inspection
-4. **Decision Enforcement**
-    - **Allow** - Request proceeds to backend
-    - **Ban** - Returns configurable status code (defaults to 403) with ban page
-    - **Captcha** - Creates session and redirects to challenge
-
-### Ban Flow
-
-When a banned IP attempts access, they receive a 403 response with a ban page:
+1. Extracting client IP from forwarded headers
+2. Checking CrowdSec decision cache for IP-based ban or captcha decisions
+3. Inspecting request with CrowdSec AppSec WAF (if enabled)
+4. Enforcing decisions:
+    - Allow: request proceeds
+    - Ban: return 403 with ban page
+    - Captcha: redirect to challenge page
 
 ![Ban Page](docs/images/ban.jpeg)
 
-### CAPTCHA Flow
-
-When CAPTCHA is enabled and a suspicious request is detected:
-
-1. Bouncer creates a secure session and redirects to `/captcha/challenge?session=<id>`
-2. User completes the CAPTCHA challenge (reCAPTCHA v2 or Cloudflare Turnstile)
-3. Challenge response is verified at `/captcha/verify`
-4. On success, the IP is allowlisted and user is redirected to their original destination
-
 ## Documentation
 
-- **[Configuration Guide](docs/CONFIGURATION.md)** - Configuration methods and overview
-- **[Server Configuration](docs/SERVER.md)** - Server ports and log levels
-- **[CrowdSec Configuration](docs/CROWDSEC.md)** - Bouncer, WAF, metrics, and trusted proxies
-- **[CAPTCHA Configuration](docs/CAPTCHA.md)** - CAPTCHA challenge setup and providers
-- **[Webhook Configuration](docs/WEBHOOKS.md)** - Webhook event notifications
-- **[Signing Key Generation](docs/SIGNING_KEYS.md)** - Generate signing keys for CAPTCHA and webhooks
-- **[Custom Templates](docs/CUSTOM_TEMPLATES.md)** - Customize ban and CAPTCHA page templates
-- **[Deployment Guide](docs/DEPLOYMENT.md)** - Kubernetes, Helm, Docker, and binary deployment
+- [Configuration Guide](docs/CONFIGURATION.md)
+- [Server Configuration](docs/SERVER.md)
+- [CrowdSec Configuration](docs/CROWDSEC.md)
+- [CAPTCHA Configuration](docs/CAPTCHA.md)
+- [Webhook Configuration](docs/WEBHOOKS.md)
+- [Signing Key Generation](docs/SIGNING_KEYS.md)
+- [Custom Templates](docs/CUSTOM_TEMPLATES.md)
+- [Deployment Guide](docs/DEPLOYMENT.md)
 
 ## Examples
 
-Kubernetes manifest examples can be found below:
 - [Kubernetes Deployment](examples/deploy/README.md)
 - [Real Example](https://github.com/kdwils/homelab/blob/main/monitoring/envoy-proxy-bouncer/environments/homelab/homelab.yaml)
 - [Custom Templates](examples/deploy/custom-templates.yaml)
